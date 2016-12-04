@@ -1,11 +1,8 @@
 package com.vittach;
 
-import java.util.List;
 import java.io.IOException;
 import javax.xml.bind.JAXBException;
 import com.github.fedy2.weather.data.Channel;
-import com.github.fedy2.weather.YahooWeatherService;
-import com.github.fedy2.weather.data.unit.DegreeUnit;
 
 import org.springframework.context.annotation.*;
 import org.springframework.context.ApplicationContext;
@@ -16,11 +13,11 @@ import org.springframework.context.ApplicationContext;
 @Configuration
 @ComponentScan
 public class WorldWeather {
-    static List<Channel> channel;
+    static Channel channel;
 
     @Bean
-    MessageService mockMessageService() {
-        return () -> channel;
+    WeatherService mockMessageService() {
+        return () -> "Current temperature in " + channel.getLocation().getCity() + " = " + channel.getItem().getCondition().getTemp();
     }
 
     /**
@@ -30,10 +27,10 @@ public class WorldWeather {
      */
     public static void main(String[] args) throws JAXBException, IOException {
         ApplicationContext context = new AnnotationConfigApplicationContext(WorldWeather.class);
-        MessagePrinter messageprinter = context.getBean(MessagePrinter.class);
+        WeatherPrinter messageprinter = context.getBean(WeatherPrinter.class);
 
-        YahooWeatherService service = new YahooWeatherService();
-        channel = service.getForecastForLocation("Piter", DegreeUnit.CELSIUS).first(3);
+        WeatherRequest wr = new WeatherRequest();
+        channel = wr.request("Piter");
 
         messageprinter.printMessage();
     }
